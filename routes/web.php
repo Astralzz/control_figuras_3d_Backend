@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\donaController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+//Index
+Route::get('/', [donaController::class, 'obtenerUsuariosComponentes']);
+Route::get('/administrador', [donaController::class, 'obtenerUsuariosComponentes']);
+
+//Donas
+Route::controller(donaController::class)->group(function () {
+    //Obtener donas
+    Route::get('/figuras/donas/obtener/lista', 'obtenerUsuariosComponentes')->name("obtenerListaDonas");
+    //Actualizar
+    Route::put('/figuras/donas/actualizar', 'actualizarDonas')->name("actualizarLasDonas");
+    //Actualizar
+    Route::delete('/figuras/donas/eliminar/tabla/{nombre}', 'destroyPorTabla')->name("eliminarDonaPorTabla");
 });

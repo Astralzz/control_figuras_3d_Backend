@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\dona;
 use App\Models\usuario;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Exception;
 
 class donaController extends Controller
@@ -59,6 +58,74 @@ class donaController extends Controller
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    //Devolver
+    public function obtenerUsuariosComponentes()
+    {
+
+        $usuarioDona = usuario::join('donas', 'usuarios.nombre', '=', 'donas.usuario')
+            ->select(
+                'usuarios.conectado',
+                'usuarios.nombre',
+                'donas.aleatorio',
+                'donas.rotacion',
+                'donas.movimiento',
+                'donas.color_dona',
+                'donas.color_fondo',
+                'donas.opacidad',
+            )
+            ->get();
+
+        return view('index', compact('usuarioDona'));
+    }
+
+    //Actualizar
+    public function actualizarDonas(Request $request)
+    {
+        //Buscamos
+        $dona = dona::where('usuario', $request->usuario)->first();
+
+        //Verificamos
+        if ($dona) {
+
+            //Actualizamos conexión
+            $dona->aleatorio = $request->aleatorio;
+            $dona->rotacion = $request->rotacion;
+            $dona->movimiento = $request->movimiento;
+            $dona->color_dona = $request->color_dona;
+            $dona->color_fondo = $request->color_fondo;
+            $dona->opacidad = $request->opacidad;
+            $dona->save();
+
+            //Devolvemos
+            return response()->json(['encontrado' => true]);
+        }
+
+        //No se encontró
+        return response()->json(['encontrado' => false]);
+    }
+
+    //Eliminar por nombre
+    public function destroyPorTabla($nombre)
+    {
+        //Buscamos dona
+        $dona = dona::where('usuario', $nombre)->first();
+
+        //Verificamos
+        if ($dona) {
+
+            //Eliminamos
+            $dona->delete();
+
+            //Buscamos usuario
+            $usuario = usuario::where('nombre', $nombre)->first();
+            //Eliminamos
+            $usuario->delete();
+
+            //Devolvemos
+            return redirect("/");
         }
     }
 }
